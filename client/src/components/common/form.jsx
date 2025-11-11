@@ -40,7 +40,6 @@ function CommonForm({ formControls, formData, setFormData, onSubmit, buttonText 
                     <Select
                         id={getControlItem.name}
                         name={getControlItem.name}
-                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                         value={value}
                         onChange={(e) =>
                             setFormData({
@@ -78,7 +77,6 @@ function CommonForm({ formControls, formData, setFormData, onSubmit, buttonText 
                                 [getControlItem.name]: e.target.value,
                             })
                         }
-                        className="min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                     />
                 )
 
@@ -108,30 +106,26 @@ function CommonForm({ formControls, formData, setFormData, onSubmit, buttonText 
         return element;
     }
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        if (typeof onSubmit === 'function') {
-            onSubmit(formData);
-        }
-    }
+    // function handleSubmit(e) {
+    //     e.preventDefault();
+    //     if (typeof onSubmit === 'function') {
+    //         onSubmit(formData);
+    //     }
+    // }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-3">
-                {
-                    formControls.map((controlItem) => (
-                        <div className="grid w-full gap-1.5" key={controlItem.name}>
-                            <Label className="mb-1">
-                                {controlItem.label}
-                            </Label>
-                            {
-                                renderInputByComponentType(controlItem)
-                            }
-                        </div>
-                    ))
-                }
-            </div>
-            <Button type="submit" className="mt-2 w-full">{buttonText || "Submit"}</Button>
+        <form className="space-y-4" onSubmit={onSubmit}>
+            {
+                formControls.map((controlItem) => (
+                    <div className="space-y-1" key={controlItem.name}>
+                        <Label htmlFor={controlItem.name}>
+                            {controlItem.label}
+                        </Label>
+                        {renderInputByComponentType(controlItem)}
+                    </div>
+                ))
+            }
+            <Button type="submit" className="w-full">{buttonText || "Submit"}</Button>
         </form>
     )
 }
