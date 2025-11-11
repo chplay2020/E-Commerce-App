@@ -1,6 +1,8 @@
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
+import { Select } from "../ui/select"
+import { Textarea } from "../ui/textarea"
 
 
 
@@ -35,7 +37,7 @@ function CommonForm({ formControls, formData, setFormData, onSubmit, buttonText 
 
             case 'select':
                 element = (
-                    <select
+                    <Select
                         id={getControlItem.name}
                         name={getControlItem.name}
                         className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
@@ -57,14 +59,14 @@ function CommonForm({ formControls, formData, setFormData, onSubmit, buttonText 
                                     {optionItem.label ?? optionItem.text}
                                 </option>
                             ))}
-                    </select>
+                    </Select>
                 )
 
                 break;
 
             case 'textarea':
                 element = (
-                    <textarea
+                    <Textarea
                         name={getControlItem.name}
                         placeholder={getControlItem.placeholder}
                         id={getControlItem.name}
