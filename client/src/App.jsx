@@ -18,17 +18,33 @@ import NotFound from "./pages/not-found/index"
 import CheckAuth from "./components/common/check-auth"
 
 import UnauthPage from "./pages/unauth-page/index"
+import { checkAuth } from "./store/auth-slice/index.js"
 
-import { useState } from "react"
+import { useDispatch } from "react-redux"
+
+import { Skeleton } from "./components/ui/skeleton"
+
+import { useEffect, useState } from "react"
 import { Routes, Route } from "react-router-dom"
 import './index.css'
+import { useSelector } from "react-redux"
 
 function App() {
-  const isAuthenticated = false; // Thay thế bằng logic xác thực thực tế
-  const user = {
-    name: "John Doe",
-    role: "user" // hoặc 'admin'
-  };
+
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(checkAuth())
+  }, [dispatch])
+
+  if (isLoading) {
+    return (
+      <Skeleton className="h-[20px] w-[100px] rounded-full" />
+    )
+  }
+
+  console.log(isLoading, user)
 
   return (
     // sau khi fix

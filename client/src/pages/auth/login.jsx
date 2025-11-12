@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import CommonForm from "@/components/common/form";
-import { loginFormControls } from "../../config/index";
+import { registerFormControls } from "../../config/index";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { loginFormControls } from "../../config/index.js";
+import { loginUser } from "../../store/auth-slice/index.js";
 
 const initialState = {
     email: '',
@@ -12,8 +17,20 @@ const initialState = {
 function AuthLogin() {
 
     const [formData, setFormData] = useState(initialState);
+    const dispatch = useDispatch() // đường dẫn gửi action
 
-    function onSubmit() {
+    function onSubmit(event) {
+        event.preventDefault();
+
+
+        dispatch(loginUser(formData)).then((data) => { // Gọi action đăng nhập từ file auth-controller.js
+            if (data?.payload?.success) {
+                toast.success(data?.payload?.message)
+                setTimeout(() => navigate('/'), 1000)
+            } else {
+                toast.error(data?.payload?.message)
+            }
+        })
 
     }
 
