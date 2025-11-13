@@ -65,7 +65,7 @@ function AdminSideBar({ open, setOpen }) {
                             <SheetTitle
                                 onClick={() => { navigate('/admin/dashboard'); if (setOpen) setOpen(false); }}
                                 className="flex items-center gap-2 mb-5 mt-5 whitespace-nowrap text-2xl font-extrabold cursor-pointer">
-                                <ChartNoAxesCombined size={30} />
+                                {/* <ChartNoAxesCombined size={30} /> */}
                                 <h2 className="text-2xl font-extrabold whitespace-nowrap">Admin Panel</h2>
                             </SheetTitle>
                         </SheetHeader>
