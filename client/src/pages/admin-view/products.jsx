@@ -5,6 +5,7 @@ import { useState } from "react"
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import CommonForm from "@/components/common/form"
 import { addProductFormElements } from "@/config"
+import ProductImagepload from "@/components/admin-view/image-upload"
 
 const initialFormData = {
     image: null,
@@ -22,6 +23,12 @@ function AdminProducts() {
     const [openCreateProductDialog, setOpenCreateProductDialog] = useState(false);
 
     const [formData, setFormData] = useState(initialFormData); // State để quản lý dữ liệu form
+
+    const [imageFile, setImageFile] = useState(null); // State để quản lý file hình ảnh
+
+    const [uploadedImageUrl, setUploadedImageUrl] = useState(''); // State để quản lý URL hình ảnh đã tải lên
+
+    const [imageLoadingState, setImageLoadingState] = useState(false); // State để quản lý trạng thái tải hình ảnh
 
 
 
@@ -45,9 +52,16 @@ function AdminProducts() {
                 >
                     <SheetContent side="right" className="overflow-auto">
                         <SheetHeader>
-                            <SheetTitle>
+                            <SheetTitle className="text-xl font-semibold mb-4">
                                 Add New Product
                             </SheetTitle>
+                            <ProductImagepload
+                                imageFile={imageFile}
+                                setImageFile={setImageFile}
+                                uploadedImageUrl={uploadedImageUrl}
+                                setUploadedImageUrl={setUploadedImageUrl}
+                                setImageLoadingState={setImageLoadingState}
+                            />
                             <div className="py-6">
                                 {/* Form thêm sản phẩm sẽ nằm ở đây */}
                                 <CommonForm
