@@ -4,10 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UploadCloudIcon, FileIcon, XIcon } from "lucide-react";
 import axios from "axios";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function ProductImagepload({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState }) {
+function ProductImagepload({
+    imageFile,
+    setImageFile,
+    imageLoadingState,
+    uploadedImageUrl,
+    setUploadedImageUrl,
+    setImageLoadingState,
+    isEditedMode
+}) {
 
     const inputRef = useRef(null);
+
+    console.log("isEditedMode", isEditedMode);
 
     function handleImageFileChange(event) {
         console.log(event.target.files);
@@ -67,20 +78,31 @@ function ProductImagepload({ imageFile, setImageFile, uploadedImageUrl, setUploa
             <Label className="text-bs font-semibold mb-2 block">
                 Upload Image
             </Label>
-            <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed rounded-lg p-4">
+            <div
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                className={` ${isEditedMode ? "opacity-60" : ""} border-2 border-dashed rounded-lg p-4 `}
+            >
                 <Input
                     id="image-upload"
                     type="file"
                     className="hidden cursor-pointer"
                     ref={inputRef}
                     onChange={handleImageFileChange}
+                    disabled={isEditedMode}
                 />
                 {
-                    !imageFile ?
-                        <Label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center justify-center h-32">
+                    !imageFile ? (
+                        <Label
+                            htmlFor="image-upload"
+                            className={`${isEditedMode ? "cursor-not-allowed opacity-50" : ""} cursor-pointer flex flex-col items-center justify-center h-32`}
+                        >
                             <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
                             <span>Drag & drop or click to upload image</span>
-                        </Label> :
+                        </Label>
+                    ) : imageLoadingState ? (
+                        <Skeleton className='h-10 bg-gray-100' />
+                    ) : (
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
                                 <FileIcon className="w-8 text-primary mr-2 h-8" />
@@ -96,6 +118,7 @@ function ProductImagepload({ imageFile, setImageFile, uploadedImageUrl, setUploa
                                 <span className="sr-only">Remove image</span>
                             </Button>
                         </div>
+                    )
                 }
             </div>
         </div>
