@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const authRouter = require('./routes/auth/auth-routes.js')
 const adminProductsRouter = require('./routes/admin/products-routes.js')
+const shopProductsRouter = require('./routes/shop/product-routes.js')
 
 
 // create a database connection
@@ -39,6 +40,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.use('/api/auth', authRouter)
 app.use('/api/admin/products', adminProductsRouter)
+app.use('/api/shop/products', shopProductsRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)

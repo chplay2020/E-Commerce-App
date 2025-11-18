@@ -1,0 +1,9 @@
+{
+    "tailwindcss.lint.cssConflict": "ignore",
+    "tailwindcss.lint.invalidApply": "ignore",
+    "tailwindcss.lint.invalidVariant": "ignore",
+    "tailwindcss.lint.recommendedVariantOrder": "ignore",
+    "tailwindcss.lint.invalidScreen": "ignore",
+    "tailwindcss.lint.invalidConfigPath": "ignore",
+    "tailwindcss.lint.invalidTailwindDirective": "ignore"
+}

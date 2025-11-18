@@ -35,6 +35,7 @@ const addProduct = async (req, res) => {
             title,
             description,
             category,
+            brand,
             price,
             salePrice,
             totalStock

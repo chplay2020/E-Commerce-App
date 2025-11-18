@@ -14,7 +14,9 @@ export const registerUser = createAsyncThunk(
             const response = await axios.post(
                 'http://localhost:5000/api/auth/register',
                 formData,
-                { withCredentials: true }
+                {
+                    withCredentials: true
+                }
             )
             return response.data  // trả về dữ liệu thành công
         } catch (error) {
@@ -32,7 +34,9 @@ export const loginUser = createAsyncThunk(
             const response = await axios.post(
                 'http://localhost:5000/api/auth/login',
                 formData,
-                { withCredentials: true }
+                {
+                    withCredentials: true
+                }
             )
             return response.data  // trả về dữ liệu thành công
         } catch (error) {
@@ -41,7 +45,6 @@ export const loginUser = createAsyncThunk(
         }
     }
 )
-
 
 
 export const checkAuth = createAsyncThunk(
@@ -64,6 +67,27 @@ export const checkAuth = createAsyncThunk(
         }
     }
 )
+
+
+export const logoutUser = createAsyncThunk(
+    'auth/logout',
+    async () => {
+        try {
+            const response = await axios.post(
+                'http://localhost:5000/api/auth/logout',
+                {},
+                {
+                    withCredentials: true
+                }
+            )
+            return response.data  // trả về dữ liệu thành công
+        } catch (error) {
+            // Trả về thông điệp lỗi từ backend (nếu có)
+            return rejectWithValue(error.response?.data || { message: "Logout failed" })
+        }
+    }
+)
+
 
 
 
@@ -120,6 +144,13 @@ const authSlice = createSlice({
                 state.isAuthenticated = true
             })
             .addCase(checkAuth.rejected, (state, action) => {
+                state.isLoading = false
+                state.user = null
+                state.isAuthenticated = false
+            })
+
+            // logout user
+            .addCase(logoutUser.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.user = null
                 state.isAuthenticated = false

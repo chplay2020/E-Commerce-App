@@ -74,22 +74,30 @@ const loginUser = async (req, res) => {
 
         // Tạo token JWT
         const token = jwt.sign(
-            { id: existingUser._id, role: existingUser.role, email: existingUser.email },
+            {
+                id: existingUser._id,
+                role: existingUser.role,
+                email: existingUser.email,
+                userName: existingUser.userName
+            },
             'CLIENT_SECRET_KEY', { expiresIn: '1h' }
         )
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false, //process.env.NODE_ENV === 'production',
-            // sameSite: 'strict',
-            // maxAge: 3600000 // 1 hour
-        }).json({
+        res.cookie('token', token,
+            {
+                httpOnly: true,
+                secure: false, //process.env.NODE_ENV === 'production',
+                // sameSite: 'strict',
+                // maxAge: 3600000 // 1 hour
+            }
+        ).json({
             success: true,
             message: 'Login successfully',
             user: {
                 email: existingUser.email,
                 role: existingUser.role,
-                id: existingUser._id
+                id: existingUser._id,
+                userName: existingUser.userName
             },
             token // Gửi token về phía client (frontend)
         })
