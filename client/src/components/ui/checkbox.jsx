@@ -1,29 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Checkbox({ checked, onChange, className }) {
+export function Checkbox({ checked, onChange, onCheckedChange, className }) {
   const [internalChecked, setInternalChecked] = useState(checked ?? false);
+
+  // Sync with external checked prop
+  useEffect(() => {
+    if (checked !== undefined) {
+      setInternalChecked(checked);
+    }
+  }, [checked]);
 
   const toggle = () => {
     const newState = !internalChecked;
     setInternalChecked(newState);
     onChange?.(newState);
+    onCheckedChange?.(newState);
   };
 
   return (
     <div
       onClick={toggle}
       className={cn(
-        "w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition",
+        "w-4 h-4 rounded flex items-center justify-center cursor-pointer transition border",
         internalChecked
           ? "bg-primary border-primary text-primary-foreground"
-          : "bg-white border-gray-400 hover:border-gray-600",
+          : "bg-white border-gray-300 hover:border-gray-400",
         className
       )}
-      style={{ borderWidth: 1.5 }}
     >
-      {internalChecked && <CheckIcon className="w-4 h-4" />}
+      {internalChecked && <CheckIcon className="w-3 h-3" strokeWidth={3} />}
     </div>
   );
 }

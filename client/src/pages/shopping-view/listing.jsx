@@ -7,7 +7,22 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/products-slice/index";
 import ShoppingProductTitle from "@/components/shopping-view/product-title";
+import { useSearchParams } from "react-router-dom";
 
+
+function createSearchParamsHelper(filtersParams) {
+    const queryParams = []
+
+    for (const [key, value] of Object.entries(filtersParams)) {
+        if (Array.isArray(value) && value.length > 0) {
+            const paramValue = value.join(',');
+
+            queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
+        }
+    }
+
+    return queryParams.join('&');
+}
 
 
 function ShoppingListing() {
@@ -16,6 +31,12 @@ function ShoppingListing() {
 
     const dispatch = useDispatch()
     const { productList } = useSelector(state => state.shoppingProducts);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    function handleSort(value) {
+        setSort(value);
+    }
 
     function handleFilter(getSectionId, getCurrentOption) {
         let cpyFilters = { ...filters };
@@ -36,13 +57,34 @@ function ShoppingListing() {
         }
 
         setFilters(cpyFilters);
+        sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
     }
 
+    // Load initial filters from sessionStorage only once
     useEffect(() => {
-        dispatch(fetchAllFilteredProducts());
-    }, [dispatch])
+        setSort('price-lowtohigh');
+        const savedFilters = sessionStorage.getItem("filters");
+        if (savedFilters) {
+            setFilters(JSON.parse(savedFilters));
+        }
+    }, []); // Empty dependency array - run only once on mount
 
-    console.log("Product List:", productList);
+
+    useEffect(() => {
+        if (filters && Object.keys(filters).length > 0) {
+            const createQueryString = createSearchParamsHelper(filters);
+            setSearchParams(new URLSearchParams(createQueryString));
+        }
+    }, [filters]); // Run when filters change
+
+
+    useEffect(() => {
+        if (filters !== null && sort !== null) {
+            dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
+        }
+    }, [dispatch, sort, filters]);
+
+    console.log("filters", filters, searchParams.toString());
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 p-4 md:p-6">
@@ -54,7 +96,7 @@ function ShoppingListing() {
                     </h2>
                     <div className="flex items-center gap-3">
                         <span className="text-muted-foreground text-sm">
-                            10 Products
+                            {productList?.length} Products
                         </span>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -70,25 +112,20 @@ function ShoppingListing() {
 
                             <DropdownMenuContent
                                 align="end"
-                                className="w-56 p-2 rounded-xl shadow-lg border bg-popover z-50"
+                                className="w-56 rounded-lg shadow-lg border bg-popover z-50"
                             >
-                                <div className="px-3 py-1.5 text-xs text-muted-foreground font-medium">
-                                    SORT OPTIONS
+                                <div className="px-3 py-1.5 text-xs text-muted-foreground font-semibold uppercase">
+                                    Sort Options
                                 </div>
 
-                                <DropdownMenuRadioGroup>
+                                <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
                                     {sortOptions.map((sortItem) => (
                                         <DropdownMenuRadioItem
                                             key={sortItem.id}
                                             value={sortItem.id}
-                                            className="
-                                                cursor-pointer px-3 py-2 text-sm rounded-md
-                                                transition-all duration-200
-                                                hover:bg-accent hover:text-accent-foreground"
                                         >
                                             {sortItem.label}
                                         </DropdownMenuRadioItem>
-
                                     ))}
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Tag, ShoppingCart } from "lucide-react";
+import { categoryOptionMap, brandOptionMap } from "@/config/index";
 
 
 function ShoppingProductTitle({ product }) {
@@ -30,7 +31,7 @@ function ShoppingProductTitle({ product }) {
                     {/* SALE Badge - Nổi bật hơn */}
                     {isSale && (
                         <div className="absolute top-3 left-3 bg-linear-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
-                            -{salePercent}% OFF
+                            Sale {salePercent}%
                         </div>
                     )}
                 </div>
@@ -44,9 +45,9 @@ function ShoppingProductTitle({ product }) {
 
                     {/* Category & Brand */}
                     <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
-                        <span className="capitalize">{product?.category}</span>
+                        <span className="capitalize">{categoryOptionMap[product?.category]}</span>
                         <span className="text-gray-300">•</span>
-                        <span className="capitalize">{product?.brand}</span>
+                        <span className="capitalize">{brandOptionMap[product?.brand]}</span>
                     </div>
 
                     {/* Price Section - luôn ở cuối content */}
