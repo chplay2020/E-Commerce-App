@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { sortOptions } from "@/config";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllFilteredProducts } from "@/store/shop/products-slice/index";
+import { fetchAllFilteredProducts, fetchProductDetails, resetProductDetails } from "@/store/shop/products-slice/index";
 import ShoppingProductTitle from "@/components/shopping-view/product-title";
 import { useSearchParams } from "react-router-dom";
+import ProductDetailsDialog from "@/components/shopping-view/product-details";
 
 
 function createSearchParamsHelper(filtersParams) {
@@ -26,13 +27,12 @@ function createSearchParamsHelper(filtersParams) {
 
 
 function ShoppingListing() {
+    const dispatch = useDispatch()
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
-
-    const dispatch = useDispatch()
-    const { productList } = useSelector(state => state.shoppingProducts);
-
+    const { productList, productDetails } = useSelector(state => state.shoppingProducts);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
     function handleSort(value) {
         setSort(value);
@@ -60,6 +60,11 @@ function ShoppingListing() {
         sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
     }
 
+    function handleGetProductDetails(getCurrentProductId) {
+        console.log("Get product details for ID:", getCurrentProductId);
+        dispatch(fetchProductDetails(getCurrentProductId));
+    }
+
     // Load initial filters from sessionStorage only once
     useEffect(() => {
         setSort('price-lowtohigh');
@@ -84,7 +89,20 @@ function ShoppingListing() {
         }
     }, [dispatch, sort, filters]);
 
-    console.log("filters", filters, searchParams.toString());
+    useEffect(() => {
+        if (productDetails !== null && Object.keys(productDetails).length > 0) {
+            setOpenDetailsDialog(true);
+        }
+    }, [productDetails])
+
+    // Reset productDetails when component unmounts
+    useEffect(() => {
+        return () => {
+            dispatch(resetProductDetails());
+        };
+    }, [dispatch]);
+
+    console.log("Product Details:", productDetails);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 p-4 md:p-6">
@@ -137,11 +155,15 @@ function ShoppingListing() {
                     {
                         productList && productList.length > 0 ?
                             productList.map((productItem) => (
-                                <ShoppingProductTitle key={productItem.id} product={productItem} />
+                                <ShoppingProductTitle
+                                    key={productItem.id} product={productItem}
+                                    handleGetProductDetails={handleGetProductDetails}
+                                />
                             )) : null
                     }
                 </div>
             </div>
+            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails} />
         </div>
     )
 }
