@@ -21,7 +21,8 @@ import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdo
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"
 import { logoutUser } from "@/store/auth-slice/index"
-
+import UserCartWrapper from "./cart-wrapper"
+import { useState } from "react";
 
 
 function MenuItems() {
@@ -41,6 +42,7 @@ function MenuItems() {
 function HeaderRightContent() {
 
     const { user } = useSelector((state) => state.auth)
+    const [openCartSheet, setOpenCartSheet] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -50,12 +52,16 @@ function HeaderRightContent() {
 
     return (
         <div className="flex lg:items-center lg:flex-row flex-col gap-4">
-            <Button variant="outline" size="icon">
-                <ShoppingCart className="w-6 h-6" />
-                <span className="sr-only">
-                    User cart
-                </span>
-            </Button>
+            <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+                <Button variant="outline" size="icon" onClick={() => setOpenCartSheet(true)}>
+                    <ShoppingCart className="w-6 h-6" />
+                    <span className="sr-only">
+                        User cart
+                    </span>
+                </Button>
+                <UserCartWrapper />
+            </Sheet>
+
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Avatar className="bg-black">

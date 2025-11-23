@@ -9,6 +9,7 @@ import { fetchAllFilteredProducts, fetchProductDetails, resetProductDetails } fr
 import ShoppingProductTitle from "@/components/shopping-view/product-title";
 import { useSearchParams } from "react-router-dom";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 
 
 function createSearchParamsHelper(filtersParams) {
@@ -28,9 +29,17 @@ function createSearchParamsHelper(filtersParams) {
 
 function ShoppingListing() {
     const dispatch = useDispatch()
+    const { productList, productDetails } = useSelector(
+        (state) => state.shoppingProducts
+    );
+    const { user } = useSelector(
+        (state) => state.auth
+    );
+    const { cartItems } = useSelector(
+        (state) => state.shopCart
+    )
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
-    const { productList, productDetails } = useSelector(state => state.shoppingProducts);
     const [searchParams, setSearchParams] = useSearchParams();
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
@@ -61,8 +70,21 @@ function ShoppingListing() {
     }
 
     function handleGetProductDetails(getCurrentProductId) {
-        console.log("Get product details for ID:", getCurrentProductId);
         dispatch(fetchProductDetails(getCurrentProductId));
+    }
+
+    function handleAddtoCart(getCurrentProductId) {
+        dispatch(addToCart(
+            {
+                userId: user?.id,
+                productId: getCurrentProductId,
+                quantity: 1
+            }
+        )).then(data => {
+            if (data?.payload?.success) {
+                dispatch(fetchCartItems(user?.id))
+            }
+        });
     }
 
     // Load initial filters from sessionStorage only once
@@ -102,7 +124,7 @@ function ShoppingListing() {
         };
     }, [dispatch]);
 
-    console.log("Product Details:", productDetails);
+    console.log("Cart Items in Listing Page:", cartItems);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 p-4 md:p-6">
@@ -158,12 +180,17 @@ function ShoppingListing() {
                                 <ShoppingProductTitle
                                     key={productItem.id} product={productItem}
                                     handleGetProductDetails={handleGetProductDetails}
+                                    handleAddtoCart={handleAddtoCart}
                                 />
                             )) : null
                     }
                 </div>
             </div>
-            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails} />
+            <ProductDetailsDialog
+                open={openDetailsDialog}
+                setOpen={setOpenDetailsDialog}
+                productDetails={productDetails}
+            />
         </div>
     )
 }

@@ -1,10 +1,11 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useDispatch } from "react-redux";
 import { resetProductDetails } from "@/store/shop/products-slice/index";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
@@ -38,6 +39,12 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:p-8 max-w-[95vw] sm:max-w-[85vw] lg:max-w-[900px] max-h-[90vh] overflow-y-auto">
+                <VisuallyHidden>
+                    <DialogTitle>Product Details</DialogTitle>
+                    <DialogDescription>
+                        View detailed information about {productDetails?.title}
+                    </DialogDescription>
+                </VisuallyHidden>
 
                 {/* IMAGE SECTION */}
                 <div className="relative">
