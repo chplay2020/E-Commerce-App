@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts, fetchProductDetails, resetProductDetails } from "@/store/shop/products-slice/index";
 import ShoppingProductTitle from "@/components/shopping-view/product-title";
-import { useSearchParams } from "react-router-dom";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import { useSearchParams } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { toast } from "sonner";
+
 
 
 function createSearchParamsHelper(filtersParams) {
@@ -35,9 +37,6 @@ function ShoppingListing() {
     const { user } = useSelector(
         (state) => state.auth
     );
-    const { cartItems } = useSelector(
-        (state) => state.shopCart
-    )
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -73,16 +72,17 @@ function ShoppingListing() {
         dispatch(fetchProductDetails(getCurrentProductId));
     }
 
-    function handleAddtoCart(getCurrentProductId) {
+    function handleAddtoCart(getCurrentProductId, quantity = 1) {
         dispatch(addToCart(
             {
                 userId: user?.id,
                 productId: getCurrentProductId,
-                quantity: 1
+                quantity: quantity
             }
         )).then(data => {
             if (data?.payload?.success) {
                 dispatch(fetchCartItems(user?.id))
+                toast.success("Item added to cart");
             }
         });
     }
@@ -123,8 +123,6 @@ function ShoppingListing() {
             dispatch(resetProductDetails());
         };
     }, [dispatch]);
-
-    console.log("Cart Items in Listing Page:", cartItems);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 p-4 md:p-6">
@@ -190,6 +188,7 @@ function ShoppingListing() {
                 open={openDetailsDialog}
                 setOpen={setOpenDetailsDialog}
                 productDetails={productDetails}
+                handleAddtoCart={handleAddtoCart}
             />
         </div>
     )
