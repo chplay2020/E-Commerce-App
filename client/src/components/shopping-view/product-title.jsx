@@ -24,52 +24,44 @@ function ShoppingProductTitle({ product, handleGetProductDetails, handleAddtoCar
     const isValidPrice = priceNum > 0 && saleNum > 0 && priceNum > saleNum;
 
     return (
-        <Card className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-lg flex flex-col h-full">
+        <Card className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full group/card">
+            {/* Clickable area for product details - chỉ ảnh và content */}
             <div
-                className="group flex-1 flex flex-col"
+                className="flex-1 flex flex-col cursor-pointer"
                 onClick={() => handleGetProductDetails(product?._id)}
             >
-                {/* Image Container */}
-                <div className="relative overflow-hidden aspect-3/4 bg-gray-100">
+                {/* Image Container - Tỉ lệ 4:5 gọn hơn */}
+                <div className="relative overflow-hidden aspect-[4/5] bg-gray-50">
                     <img
                         src={product?.image}
                         alt={product?.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover/card:scale-110"
                     />
 
-                    {/* SALE Badge - Chỉ hiển thị khi có sale hợp lệ */}
+                    {/* SALE Badge - Lớn hơn, nổi bật hơn */}
                     {isSale && isValidPrice && salePercent > 0 && (
-                        <div className="absolute top-3 left-3 bg-[linear-gradient(to_right,rgb(239,68,68),rgb(249,115,22))] text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg z-10">
-                            Sale {salePercent}%
+                        <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg z-10 animate-pulse">
+                            -{salePercent}%
                         </div>
                     )}
-
-                    {/* Wishlist Button */}
-                    <button className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200 shadow-sm z-10">
-                        <svg className="w-4 h-4 text-gray-600 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
                 </div>
 
-                {/* Content - flex-1 để chiếm không gian còn lại */}
-                <CardContent className="p-4 flex-1 flex flex-col">
-                    {/* Product Title */}
-                    <h2 className="font-semibold text-gray-900 leading-tight line-clamp-2 text-base mb-2">
+                {/* Content - Padding nhỏ hơn, gọn hơn */}
+                <CardContent className="p-3 flex-1 flex flex-col space-y-2">
+                    {/* Product Title - Font lớn hơn và đậm hơn */}
+                    <h2 className="font-bold text-gray-900 leading-tight line-clamp-2 text-base group-hover/card:text-primary transition-colors">
                         {product?.title}
                     </h2>
 
-                    {/* Rating Section */}
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center gap-1">
+                    {/* Rating & Reviews - Gọn hơn */}
+                    <div className="flex items-center gap-1.5">
+                        <div className="flex items-center">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                     key={star}
                                     className={`w-3 h-3 ${star <= Math.floor(rating)
                                         ? "fill-yellow-400 text-yellow-400"
-                                        : star === Math.ceil(rating) && rating % 1 !== 0
-                                            ? "fill-yellow-400 text-yellow-400"
-                                            : "fill-gray-300 text-gray-300"
+                                        : "fill-gray-200 text-gray-200"
                                         }`}
                                 />
                             ))}
@@ -77,52 +69,53 @@ function ShoppingProductTitle({ product, handleGetProductDetails, handleAddtoCar
                         <span className="text-xs text-gray-500">({reviewCount})</span>
                     </div>
 
-                    {/* Category & Brand */}
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
-                        <span className="capitalize">{categoryOptionMap[product?.category]}</span>
-                        <span className="text-gray-300">•</span>
-                        <span className="capitalize">{brandOptionMap[product?.brand]}</span>
-                    </div>
+                    {/* Category & Brand - Thu gọn */}
+                    <p className="text-xs text-gray-500">
+                        {categoryOptionMap[product?.category]} · {brandOptionMap[product?.brand]}
+                    </p>
 
-                    {/* Price Section - luôn ở cuối content */}
-                    <div className="mt-auto space-y-2">
+                    {/* Price Section - Màu sắc nổi bật hơn */}
+                    <div className="mt-auto pt-2">
                         {isSale && isValidPrice ? (
-                            <>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-2xl font-bold text-red-600">
+                            <div className="space-y-1">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-xl font-bold text-red-600">
                                         {formatCurrency(product?.salePrice)}
                                     </span>
-                                    <span className="text-sm text-gray-400 line-through">
+                                    <span className="text-xs text-gray-400 line-through">
                                         {formatCurrency(product?.price)}
                                     </span>
                                 </div>
-                                <div className="inline-block bg-green-50 text-green-600 px-2.5 py-1 rounded-md text-xs font-semibold border border-green-200">
+                                <div className="inline-block bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">
                                     Save {formatCurrency(savedPrice)}
                                 </div>
-                            </>
+                            </div>
                         ) : (
-                            <span className="text-2xl font-bold text-gray-900">
+                            <span className="text-xl font-bold text-gray-900">
                                 {formatCurrency(product?.price || product?.salePrice)}
                             </span>
                         )}
                     </div>
                 </CardContent>
-
-                {/* Add to Cart Button - cố định ở dưới cùng */}
-                <CardFooter className="p-3 pt-0">
-                    <Button
-                        onClick={() => handleAddtoCart(product?._id)}
-                        className={`w-full h-10 text-sm font-semibold shadow-sm transition-all duration-200 ${inStock
-                            ? "bg-primary hover:bg-primary/90 hover:shadow-md"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            }`}
-                        disabled={!inStock}
-                    >
-                        <ShoppingCart className="size-4 mr-2" />
-                        {inStock ? "Add to Cart" : "Out of Stock"}
-                    </Button>
-                </CardFooter>
             </div>
+
+            {/* Add to Cart Button - Full width với hover đẹp */}
+            <CardFooter className="p-2.5 pt-0">
+                <Button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddtoCart(product?._id);
+                    }}
+                    className={`w-full h-9 text-xs font-bold transition-all duration-200 ${inStock
+                        ? "bg-primary hover:bg-primary/90 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                    disabled={!inStock}
+                >
+                    <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+                    {inStock ? "Add to Cart" : "Out of Stock"}
+                </Button>
+            </CardFooter>
         </Card>
     );
 }
