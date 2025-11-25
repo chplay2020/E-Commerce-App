@@ -5,6 +5,13 @@ import { Button } from "../ui/button"
 import { useSelector } from "react-redux"
 import { shoppingViewHeaderMenuItems } from "@/config"
 import { ShoppingCart } from "lucide-react"
+import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"
+import { logoutUser } from "@/store/auth-slice/index"
+import UserCartWrapper from "./cart-wrapper"
+import { useEffect, useState } from "react";
+import { fetchCartItems } from "@/store/shop/cart-slice"
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -17,12 +24,7 @@ import {
     AvatarFallback,
     AvatarImage
 } from "../ui/avatar"
-import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"
-import { logoutUser } from "@/store/auth-slice/index"
-import UserCartWrapper from "./cart-wrapper"
-import { useState } from "react";
+
 
 
 function MenuItems() {
@@ -42,6 +44,7 @@ function MenuItems() {
 function HeaderRightContent() {
 
     const { user } = useSelector((state) => state.auth)
+    const { cartItems } = useSelector((state) => state.shopCart)
     const [openCartSheet, setOpenCartSheet] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -49,6 +52,10 @@ function HeaderRightContent() {
     function handleLogout() {
         dispatch(logoutUser());
     }
+
+    useEffect(() => {
+        dispatch(fetchCartItems(user?.id));
+    }, [dispatch, user?.id])
 
     return (
         <div className="flex lg:items-center lg:flex-row flex-col gap-4">
@@ -59,7 +66,7 @@ function HeaderRightContent() {
                         User cart
                     </span>
                 </Button>
-                <UserCartWrapper />
+                <UserCartWrapper cartItems={cartItems && cartItems.items && cartItems.items.length > 0 ? cartItems.items : []} />
             </Sheet>
 
             <DropdownMenu>
@@ -98,7 +105,7 @@ function ShoppingHeader() {
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background">
-            <div className="flex h-16 items-center justify-between px-4 md:px-6">
+            <div className="flex h-16 items-center justify-between px-4 md:px-8 lg:px-12">
                 <Link to='/shopping/home' className="flex items-center gap-2">
                     <House className="h-6 w-6" />
                     <span className="font-bold">
