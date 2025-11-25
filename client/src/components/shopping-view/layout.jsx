@@ -5,10 +5,10 @@ import ShoppingHeader from "./header";
 
 function ShoppingLayout() {
     return (
-        <div className="flex flex-col bg-white overflow-hidden">
+        <div className="flex flex-col bg-white overflow-x-hidden">
             {/* Common Header */}
             <ShoppingHeader />
-            <main className="flex flex-col w-full">
+            <main className="flex flex-col w-full max-w-full">
                 <Outlet />
             </main>
         </div>
