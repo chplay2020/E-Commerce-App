@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 
-function ProductDetailsDialog({ open, setOpen, productDetails }) {
+function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }) {
     const dispatch = useDispatch();
     const [quantity, setQuantity] = useState(1);
 
@@ -174,6 +174,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                     <div className="flex gap-3">
                         <Button
                             className="flex-1 h-12 text-base font-semibold bg-primary hover:bg-primary/90"
+                            onClick={() => {
+                                handleAddtoCart(productDetails?._id, quantity);
+                                setOpen(false);
+                                dispatch(resetProductDetails());
+                            }}
                             disabled={!inStock}
                         >
                             <ShoppingCart className="mr-2 h-5 w-5" />
