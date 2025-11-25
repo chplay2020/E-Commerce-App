@@ -16,6 +16,7 @@ import ShoppingAccount from "./pages/shopping-view/account"
 import NotFound from "./pages/not-found/index"
 
 import CheckAuth from "./components/common/check-auth"
+import ScrollToTop from "./components/common/scroll-to-top"
 
 import UnauthPage from "./pages/unauth-page/index"
 import { checkAuth } from "./store/auth-slice/index.js"
@@ -49,7 +50,7 @@ function App() {
   return (
     // sau khi fix
     <div className="flex min-h-screen w-screen flex-col overflow-hidden bg-white">
-
+      <ScrollToTop />
       <Routes>
         {/* auth routes */}
         <Route path="/auth" element={
