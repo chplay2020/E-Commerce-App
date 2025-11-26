@@ -2,10 +2,13 @@ import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
 import { ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 
-function UserCartWrapper({ cartItems }) {
+function UserCartWrapper({ cartItems, setOpenCartSheet }) {
+    const navigate = useNavigate();
+
     // Tính tổng tiền giỏ hàng
     const totalPrice = cartItems && cartItems.length > 0
         ? cartItems.reduce((total, item) => {
@@ -83,7 +86,12 @@ function UserCartWrapper({ cartItems }) {
                         </div>
                     </div>
 
-                    <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:translate-y-[-2px] active:translate-y-0 group relative overflow-hidden">
+                    <Button
+                        onClick={() => {
+                            navigate('/shopping/checkout');
+                            setOpenCartSheet(false);
+                        }}
+                        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:translate-y-[-2px] active:translate-y-0 group relative overflow-hidden">
                         {/* Hiệu ứng shine trên hover */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
