@@ -5,7 +5,8 @@ import { Button } from "../ui/button"
 import { useSelector } from "react-redux"
 import { shoppingViewHeaderMenuItems } from "@/config"
 import { ShoppingCart } from "lucide-react"
-import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { DropdownMenuLabel, DropdownMenuSeparator } from "../ui/dropdown-menu"
+import { Label } from "../ui/label"
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"
 import { logoutUser } from "@/store/auth-slice/index"
@@ -28,13 +29,33 @@ import {
 
 
 function MenuItems() {
+
+    const navigate = useNavigate()
+
+    function handleNavigateMenuItem(getCurrentMenuItem) {
+        sessionStorage.removeItem('filters');
+        const currentFilter = getCurrentMenuItem.id !== 'home' ? (
+            {
+                category: [getCurrentMenuItem.id]
+            }
+        ) : null;
+
+        sessionStorage.setItem('filters', JSON.stringify(currentFilter));
+        navigate(getCurrentMenuItem.path);
+    }
+
     return (
         <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
             {
                 shoppingViewHeaderMenuItems.map((menuItem) => (
-                    <Link key={menuItem.id} to={menuItem.path} className="text-sm font-medium">
+                    <Label
+                        key={menuItem.id}
+                        //to={menuItem.path}
+                        onClick={() => handleNavigateMenuItem(menuItem)}
+                        className="text-sm font-medium cursor-pointer hover:underline"
+                    >
                         {menuItem.label}
-                    </Link>
+                    </Label>
                 ))
             }
         </nav>
@@ -66,7 +87,10 @@ function HeaderRightContent() {
                         User cart
                     </span>
                 </Button>
-                <UserCartWrapper cartItems={cartItems && cartItems.items && cartItems.items.length > 0 ? cartItems.items : []} />
+                <UserCartWrapper
+                    cartItems={cartItems && cartItems.items && cartItems.items.length > 0 ? cartItems.items : []}
+                    setOpenCartSheet={setOpenCartSheet}
+                />
             </Sheet>
 
             <DropdownMenu>
