@@ -9,4 +9,4 @@ function AdminOrders() {
     )
 }
 
-export default AdminOrders
+export default AdminOrders;
