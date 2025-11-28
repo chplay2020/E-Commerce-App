@@ -6,7 +6,6 @@ import shoppingCartSlice from './shop/cart-slice/index.js'
 import shopAddressSlice from './shop/address-slice/index.js'
 import shopOrderSlice from './shop/order-slice/index.js'
 
-
 const store = configureStore({
     reducer: {
         auth: authReducer,
