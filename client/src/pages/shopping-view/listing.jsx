@@ -37,10 +37,13 @@ function ShoppingListing() {
     const { user } = useSelector(
         (state) => state.auth
     );
+    const { cartItems } = useSelector((state) => state.shopCart);
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+    const categorySearchParam = searchParams.get('category');
 
     function handleSort(value) {
         setSort(value);
@@ -72,7 +75,24 @@ function ShoppingListing() {
         dispatch(fetchProductDetails(getCurrentProductId));
     }
 
-    function handleAddtoCart(getCurrentProductId, quantity = 1) {
+    function handleAddtoCart(getCurrentProductId, getTotalStock, quantity = 1) {
+        console.log("Adding to cart:", cartItems);
+        let getCartItems = cartItems.items || [];
+
+        if (getCartItems.length) {
+            const indexOfCurrentItem = getCartItems.findIndex((item => item.productId._id === getCurrentProductId));
+            if (indexOfCurrentItem > -1) {
+                const getQuantity = getCartItems[indexOfCurrentItem]?.quantity || 0;
+
+                if (getQuantity + 1 > getTotalStock) {
+                    toast.error(
+                        `Only ${getTotalStock} items in stock. You already have ${getQuantity} in your cart.`
+                    );
+                    return;
+                }
+            }
+        }
+
         dispatch(addToCart(
             {
                 userId: user?.id,
@@ -92,9 +112,9 @@ function ShoppingListing() {
         setSort('price-lowtohigh');
         const savedFilters = sessionStorage.getItem("filters");
         if (savedFilters) {
-            setFilters(JSON.parse(savedFilters));
+            setFilters(JSON.parse(savedFilters) || {});
         }
-    }, []); // Empty dependency array - run only once on mount
+    }, [categorySearchParam]); // Empty dependency array - run only once on mount
 
 
     useEffect(() => {

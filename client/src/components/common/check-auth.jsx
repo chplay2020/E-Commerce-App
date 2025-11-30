@@ -8,6 +8,13 @@ function CheckAuth({ isAuthenticated, user, children }) {
 
     console.log(location.pathname, isAuthenticated);
 
+    // Allow PayPal return/cancel pages without authentication check
+    if (location.pathname.includes('/paypal-return') ||
+        location.pathname.includes('/paypal-cancel') ||
+        location.pathname.includes('/payment-success')) {
+        return <>{children}</>;
+    }
+
     if (!isAuthenticated &&
         !(location.pathname.includes('/login') ||
             location.pathname.includes('/register'))) {

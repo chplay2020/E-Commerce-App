@@ -67,6 +67,7 @@ function ShoppingCheckout() {
 
         dispatch(createNewOrder(orderData)).then((data) => {
             console.log(data, "sangam");
+            console.log("Approval URL:", data?.payload?.approvalUrl);
             if (data?.payload?.success) {
                 setIsPaymentStart(true);
             } else {
@@ -76,7 +77,10 @@ function ShoppingCheckout() {
     }
 
     if (approvalUrl) {
-        window.location.href = approvalUrl;
+        console.log("Redirecting to PayPal:", approvalUrl);
+        window.open(approvalUrl, '_self');
+        // Reset approvalUrl to prevent infinite loop
+        return null;
     }
 
     return (

@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { resetProductDetails } from "@/store/shop/products-slice/index";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +7,13 @@ import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw } from "luc
 import { Separator } from "@/components/ui/separator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
+import { toast } from "sonner";
 
 function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }) {
     const dispatch = useDispatch();
     const [quantity, setQuantity] = useState(1);
+    const { cartItems } = useSelector((state) => state.shopCart);
+    const { user } = useSelector((state) => state.auth);
 
     const handleOpenChange = (isOpen) => {
         setOpen(isOpen);
@@ -28,12 +31,34 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
         : 0;
     const inStock = Number(productDetails?.totalStock) > 0;
 
+    // Calculate available quantity (stock - quantity already in cart)
+    const getCartItems = cartItems.items || [];
+    const existingItem = getCartItems.find(item => item.productId._id === productDetails?._id);
+    const currentQuantityInCart = existingItem?.quantity || 0;
+    const availableQuantity = Math.max(0, productDetails?.totalStock - currentQuantityInCart);
+
     const formatCurrency = (value) => {
         return Number(value || 0).toLocaleString("en-US", {
             style: "currency",
             currency: "USD",
             maximumFractionDigits: 2
         });
+    };
+
+    const handleAddToCartClick = () => {
+        // Validate total quantity doesn't exceed stock
+        if (currentQuantityInCart + quantity > productDetails?.totalStock) {
+            toast.error(
+                `Only ${productDetails?.totalStock} items in stock. You already have ${currentQuantityInCart} in your cart.`
+            );
+            return;
+        }
+
+        // Add to cart
+        handleAddtoCart(productDetails?._id, productDetails?.totalStock, quantity);
+        setOpen(false);
+        dispatch(resetProductDetails());
+        setQuantity(1);
     };
 
     return (
@@ -135,15 +160,22 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
                     </div>
 
                     {/* Stock Status */}
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Availability:</span>
-                        <Badge variant={inStock ? "default" : "destructive"} className="font-semibold">
-                            {inStock ? `${productDetails?.totalStock} in stock` : "Out of Stock"}
-                        </Badge>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">Availability:</span>
+                            <Badge variant={inStock ? "default" : "destructive"} className="font-semibold">
+                                {inStock ? `${productDetails?.totalStock} in stock` : "Out of Stock"}
+                            </Badge>
+                        </div>
+                        {currentQuantityInCart > 0 && (
+                            <div className="text-sm text-orange-600 font-medium">
+                                You have {currentQuantityInCart} in your cart. {availableQuantity} more available.
+                            </div>
+                        )}
                     </div>
 
                     {/* Quantity Selector */}
-                    {inStock && (
+                    {inStock && availableQuantity > 0 && (
                         <div className="flex items-center gap-4">
                             <span className="text-sm font-semibold text-gray-900">Quantity:</span>
                             <div className="flex items-center border rounded-lg">
@@ -161,7 +193,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setQuantity(Math.min(productDetails?.totalStock, quantity + 1))}
+                                    onClick={() => setQuantity(Math.min(availableQuantity, quantity + 1))}
                                     className="px-3"
                                 >
                                     +
@@ -174,15 +206,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
                     <div className="flex gap-3">
                         <Button
                             className="flex-1 h-12 text-base font-semibold bg-primary hover:bg-primary/90"
-                            onClick={() => {
-                                handleAddtoCart(productDetails?._id, quantity);
-                                setOpen(false);
-                                dispatch(resetProductDetails());
-                            }}
-                            disabled={!inStock}
+                            onClick={handleAddToCartClick}
+                            disabled={!inStock || availableQuantity === 0}
                         >
                             <ShoppingCart className="mr-2 h-5 w-5" />
-                            Add to Cart
+                            {availableQuantity === 0 ? "Max in Cart" : "Add to Cart"}
                         </Button>
                         <Button
                             variant="outline"

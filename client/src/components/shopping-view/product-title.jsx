@@ -38,10 +38,24 @@ function ShoppingProductTitle({ product, handleGetProductDetails, handleAddtoCar
                         className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover/card:scale-110"
                     />
 
-                    {/* SALE Badge - Lớn hơn, nổi bật hơn */}
-                    {isSale && isValidPrice && salePercent > 0 && (
-                        <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg z-10 animate-pulse">
+                    {/* SALE Badge - Top Left */}
+                    {isSale && isValidPrice && salePercent > 0 && product?.totalStock > 0 && (
+                        <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg z-10">
                             -{salePercent}%
+                        </div>
+                    )}
+
+                    {/* Out of Stock Badge - Top Left */}
+                    {product?.totalStock === 0 && (
+                        <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-gray-600 to-gray-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg z-10">
+                            Out of Stock
+                        </div>
+                    )}
+
+                    {/* Low Stock Badge - Bottom Left */}
+                    {product?.totalStock > 0 && product?.totalStock < 10 && (
+                        <div className="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg z-10">
+                            Only {product?.totalStock} left!
                         </div>
                     )}
                 </div>
@@ -104,7 +118,7 @@ function ShoppingProductTitle({ product, handleGetProductDetails, handleAddtoCar
                 <Button
                     onClick={(e) => {
                         e.stopPropagation();
-                        handleAddtoCart(product?._id);
+                        handleAddtoCart(product?._id, product?.totalStock);
                     }}
                     className={`w-full h-9 text-xs font-bold transition-all duration-200 ${inStock
                         ? "bg-primary hover:bg-primary/90 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
