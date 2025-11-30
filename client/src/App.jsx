@@ -16,6 +16,7 @@ import ShoppingAccount from "./pages/shopping-view/account"
 import NotFound from "./pages/not-found/index"
 import PayPalReturnPage from "./pages/shopping-view/paypal-return"
 import PayPalCancelPage from "./pages/shopping-view/paypal-cancel"
+import PaymentSuccessPage from "./pages/shopping-view/payment-success"
 
 import CheckAuth from "./components/common/check-auth"
 import ScrollToTop from "./components/common/scroll-to-top"
@@ -88,6 +89,7 @@ function App() {
           <Route path="account" element={<ShoppingAccount />} />
           <Route path="paypal-return" element={<PayPalReturnPage />} />
           <Route path="paypal-cancel" element={<PayPalCancelPage />} />
+          <Route path="payment-success/:orderId" element={<PaymentSuccessPage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} /> {/* 404 route */}
