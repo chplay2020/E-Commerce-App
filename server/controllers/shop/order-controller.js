@@ -2,6 +2,8 @@ const { ordersController } = require('../../helpers/paypal');
 const Order = require('../../models/Orders');
 const Cart = require('../../models/Cart');
 const Product = require('../../models/Product');
+const User = require('../../models/User');
+const { sendOrderConfirmationEmail } = require('../../helpers/email');
 
 const createOrder = async (req, res) => {
     try {
@@ -141,6 +143,20 @@ const capturePayment = async (req, res) => {
         await Cart.findByIdAndDelete(getCartId);
 
         await order.save();
+
+        // Lấy thông tin user để gửi email
+        console.log('🔔 Attempting to send order confirmation email...');
+        const user = await User.findById(order.userId);
+        if (user) {
+            const emailResult = await sendOrderConfirmationEmail(user.email, user.userName, order);
+            if (emailResult.success) {
+                console.log('✅ Order confirmation email sent successfully');
+            } else {
+                console.log('⚠️ Email failed but order completed:', emailResult.error);
+            }
+        } else {
+            console.log('⚠️ User not found, cannot send email');
+        }
 
         res.status(200).json({
             success: true,

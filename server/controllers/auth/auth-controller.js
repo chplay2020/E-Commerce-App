@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../../models/User')
+const { sendRegistrationEmail } = require('../../helpers/email')
 
 
 //register
@@ -32,10 +33,19 @@ const registerUser = async (req, res) => {
 
         await newUser.save()
 
+        // Gửi email xác nhận đăng ký
+        console.log('🔔 Attempting to send registration email...');
+        const emailResult = await sendRegistrationEmail(email, userName);
+        if (emailResult.success) {
+            console.log('✅ Email sent successfully');
+        } else {
+            console.log('⚠️ Email failed but registration completed:', emailResult.error);
+        }
+
         // Gửi phản hồi thành công
         res.status(201).json({
             success: true,
-            message: 'Registration successfully'
+            message: 'Registration successfully. Please check your email for confirmation.'
         })
 
     } catch (error) {
