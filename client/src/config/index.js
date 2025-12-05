@@ -146,6 +146,12 @@ export const shoppingViewHeaderMenuItems = [
         id: 'footware',
         label: 'Footware',
         path: '/shopping/listing'
+    },
+    {
+
+        id: 'search',
+        label: 'Search',
+        path: '/shopping/search'
     }
 ]
 
