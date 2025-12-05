@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/admin-view/dashboard"
 import AdminProducts from "./pages/admin-view/products"
 import AdminOrders from "./pages/admin-view/orders"
 import AdminFeatures from "./pages/admin-view/features"
+import AdminUsers from "./pages/admin-view/users"
 
 import ShoppingLayout from "./components/shopping-view/layout"
 import ShoppingHome from "./pages/shopping-view/home"
@@ -17,9 +18,11 @@ import NotFound from "./pages/not-found/index"
 import PayPalReturnPage from "./pages/shopping-view/paypal-return"
 import PayPalCancelPage from "./pages/shopping-view/paypal-cancel"
 import PaymentSuccessPage from "./pages/shopping-view/payment-success"
+import SearchProducts from "./pages/shopping-view/search"
 
 import CheckAuth from "./components/common/check-auth"
 import ScrollToTop from "./components/common/scroll-to-top"
+import { Toaster } from "./components/ui/toaster"
 
 import UnauthPage from "./pages/unauth-page/index"
 import { checkAuth } from "./store/auth-slice/index.js"
@@ -74,6 +77,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
           <Route path="features" element={<AdminFeatures />} />
         </Route>
 
@@ -90,13 +94,14 @@ function App() {
           <Route path="paypal-return" element={<PayPalReturnPage />} />
           <Route path="paypal-cancel" element={<PayPalCancelPage />} />
           <Route path="payment-success/:orderId" element={<PaymentSuccessPage />} />
+          <Route path="search" element={<SearchProducts />} />
         </Route>
 
         <Route path="*" element={<NotFound />} /> {/* 404 route */}
 
         <Route path="/unauth-page" element={<UnauthPage />} /> {/* Unauthorized access route */}
       </Routes>
-
+      <Toaster />
     </div>
   )
 }
