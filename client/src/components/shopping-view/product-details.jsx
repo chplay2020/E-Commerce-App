@@ -1,13 +1,16 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useDispatch, useSelector } from "react-redux";
-import { resetProductDetails } from "@/store/shop/products-slice/index";
+import { resetProductDetails, fetchProductDetails } from "@/store/shop/products-slice/index";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from 'axios';
 import { toast } from "sonner";
+import StarRatingComponent from "@/components/common/star-rating";
+import { Textarea } from "@/components/ui/textarea";
 
 function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }) {
     const dispatch = useDispatch();
@@ -59,6 +62,79 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
         setOpen(false);
         dispatch(resetProductDetails());
         setQuantity(1);
+    };
+
+    // Review form state
+    const [ratingInput, setRatingInput] = useState(5);
+    const [reviewText, setReviewText] = useState("");
+    const [submittingReview, setSubmittingReview] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
+
+    // Fetch reviews when product details change
+    useEffect(() => {
+        if (productDetails?._id) {
+            fetchReviews();
+        }
+    }, [productDetails?._id]);
+
+    const fetchReviews = async () => {
+        try {
+            setLoadingReviews(true);
+            const res = await axios.get(`http://localhost:5000/api/shop/review/${productDetails?._id}`);
+            if (res?.data?.success) {
+                setReviews(res.data.data || []);
+            }
+        } catch (err) {
+            console.error("Error fetching reviews:", err);
+        } finally {
+            setLoadingReviews(false);
+        }
+    };
+
+    const submitReview = async (e) => {
+        e.preventDefault();
+
+        if (!user) {
+            toast.error("Please login to write a review.");
+            return;
+        }
+
+        if (!reviewText || reviewText.trim().length < 5) {
+            toast.error("Please write a review (at least 5 characters).");
+            return;
+        }
+
+        try {
+            setSubmittingReview(true);
+            const payload = {
+                productId: productDetails?._id,
+                userId: user?.id,
+                userName: user?.userName,
+                reviewMessage: reviewText.trim(),
+                reviewValue: Number(ratingInput)
+            };
+
+            const res = await axios.post(`http://localhost:5000/api/shop/review/add`, payload);
+
+            if (res?.data?.success) {
+                toast.success("Review submitted \u2014 thanks!");
+                setReviewText("");
+                setRatingInput(5);
+                // Refresh product details to show updated rating and review count
+                dispatch(fetchProductDetails(productDetails?._id));
+                // Refresh reviews list
+                fetchReviews();
+            } else {
+                toast.error(res?.data?.message || "Could not submit review.");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error(err?.response?.data?.message || "Error submitting review.");
+            toast.error("Error submitting review.");
+        } finally {
+            setSubmittingReview(false);
+        }
     };
 
     return (
@@ -113,10 +189,18 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
                         <div className="flex items-center gap-3 mb-2">
                             <div className="flex items-center gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star key={star} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                    <Star
+                                        key={star}
+                                        className={`w-4 h-4 ${star <= Math.round(productDetails?.averageRating || 0)
+                                            ? 'fill-yellow-400 text-yellow-400'
+                                            : 'fill-gray-200 text-gray-200'
+                                            }`}
+                                    />
                                 ))}
                             </div>
-                            <span className="text-sm text-gray-600">(4.5) 128 reviews</span>
+                            <span className="text-sm text-gray-600">
+                                ({productDetails?.averageRating?.toFixed(1) || '0.0'}) {productDetails?.totalReviews || 0} reviews
+                            </span>
                         </div>
 
                         <Badge variant="outline" className="capitalize">
@@ -237,6 +321,91 @@ function ProductDetailsDialog({ open, setOpen, productDetails, handleAddtoCart }
                             <RotateCcw className="h-5 w-5 text-primary" />
                             <span>30-day return policy</span>
                         </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Write a Review */}
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-semibold text-gray-900">Write a review</h3>
+                        <form onSubmit={submitReview} className="flex flex-col gap-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">Your rating:</span>
+                                <div className="flex items-center gap-1">
+                                    <StarRatingComponent
+                                        rating={ratingInput}
+                                        handleRatingChange={setRatingInput}
+                                    />
+                                </div>
+                            </div>
+
+                            <Textarea
+                                value={reviewText}
+                                onChange={(e) => setReviewText(e.target.value)}
+                                className="resize-none"
+                                rows={4}
+                                placeholder="Write your review here (min 5 characters)..."
+                            />
+
+                            <div className="flex items-center gap-3">
+                                <Button type="submit" className="bg-primary" disabled={submittingReview}>
+                                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                                </Button>
+                                <Button type="button" variant="ghost" onClick={() => { setReviewText(''); setRatingInput(5); }}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <Separator />
+
+                    {/* Reviews List */}
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-semibold text-gray-900">
+                            Customer Reviews ({reviews.length})
+                        </h3>
+
+                        {loadingReviews ? (
+                            <div className="text-sm text-gray-500 py-4">Loading reviews...</div>
+                        ) : reviews.length > 0 ? (
+                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                                {reviews.map((review) => (
+                                    <div key={review._id} className="border rounded-lg p-4 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-sm">{review.userName}</span>
+                                                <div className="flex items-center gap-1">
+                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                        <Star
+                                                            key={star}
+                                                            className={`w-3 h-3 ${star <= review.reviewValue
+                                                                    ? 'fill-yellow-400 text-yellow-400'
+                                                                    : 'fill-gray-200 text-gray-200'
+                                                                }`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-gray-500">
+                                                {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 leading-relaxed">
+                                            {review.reviewMessage}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-gray-500 py-4 text-center border rounded-lg">
+                                No reviews yet. Be the first to review this product!
+                            </div>
+                        )}
                     </div>
                 </div>
             </DialogContent>

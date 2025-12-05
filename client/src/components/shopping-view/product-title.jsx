@@ -11,9 +11,9 @@ function ShoppingProductTitle({ product, handleGetProductDetails, handleAddtoCar
     const salePercent = isSale && priceNum > 0 ? Math.round((savedPrice / priceNum) * 100) : 0;
     const inStock = Number(product?.totalStock) > 0;
 
-    // Mock data for rating - bạn có thể thay bằng data thực từ product
-    const rating = product?.rating || 4.5;
-    const reviewCount = product?.reviewCount || 128;
+    // Get actual rating data from product
+    const rating = product?.averageRating || 0;
+    const reviewCount = product?.totalReviews || 0;
 
     const formatCurrency = (v) => {
         const n = Number(v || 0);
